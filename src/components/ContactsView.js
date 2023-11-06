@@ -1,15 +1,32 @@
-import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 function ContactsView() {
-  const [contact, setContact] = useState(false)
+  const [contact, setContact] = useState(null);
 
-  //TODO: Get the contact to load from the params and fetch.
-  //With useEffect, load the contact when params changes
-  //and update contact state
+  const { id } = useParams();
 
-  if (!contact) {
-    return <p>Loading</p>
+  useEffect(() => {
+    const fetchContact = async () => {
+      try {
+        const response = await fetch(`http://localhost:4000/contacts/${id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setContact(data)
+        } else {
+          throw new Error("Failed to fetch contact data");
+        }
+      } catch (error) {
+        console.error(error);
+        setContact(null);
+      }
+    };
+
+    fetchContact();
+  }, [id]);
+
+  if (contact === null) {
+    return <p>Loading</p>;
   }
 
   return (
@@ -17,7 +34,7 @@ function ContactsView() {
       <h2>{contact.firstName} {contact.lastName}</h2>
       <p>{contact.street} {contact.city}</p>
     </div>
-  )
+  );
 }
 
-export default ContactsView
+export default ContactsView;
